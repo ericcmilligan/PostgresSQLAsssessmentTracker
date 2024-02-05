@@ -1,0 +1,56 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id                               Int                             @id @default(autoincrement())
+  email                            String                          @unique
+  name                             String
+  modules                          Modules[]
+  role                             Roles[]
+  Assessments                      Assessments[]
+}
+
+model Modules {
+  id            Int           @id @default(autoincrement())
+  moduleName    String        @unique
+  moduleLeaders Users[]
+  assessments   Assessments[]
+}
+
+model Roles {
+  id       Int     @id @default(autoincrement())
+  roleName String  @unique
+  users    Users[]
+}
+
+model Assessments {
+  id                             Int                              @id @default(autoincrement())
+  moduleId                       Int
+  module                         Modules                          @relation(fields: [moduleId], references: [id])
+  assessmentName                 String?                          @unique
+  assessmentType                 String?
+  handOutWeek                    DateTime
+  handInWeek                     DateTime
+  assessment_availability        Assessment_Availability[]
+  assignees                      Users[]
+}
+
+model Assessment_Availability {
+  id                          Int             @id @default(autoincrement())
+  draftAssessmentDate         DateTime
+  lastYearAssessmentAvailable Boolean
+  lastYearAssessmentDate      DateTime?
+  markingPlanSummary          String
+  changesSummary              String
+  Assessments                 Assessments?    @relation(fields: [assessmentsId], references: [id])
+  assessmentsId               Int?
+}
