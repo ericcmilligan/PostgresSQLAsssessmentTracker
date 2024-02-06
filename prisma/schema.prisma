@@ -1,8 +1,10 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
+}
+
+generator erd {
+  provider = "prisma-erd-generator"
+  output   = "../ERD.svg"
 }
 
 datasource db {
@@ -11,46 +13,49 @@ datasource db {
 }
 
 model Users {
-  id                               Int                             @id @default(autoincrement())
-  email                            String                          @unique
-  name                             String
-  modules                          Modules[]
-  role                             Roles[]
-  Assessments                      Assessments[]
+  id          Int           @id @default(autoincrement())
+  email       String        @unique
+  name        String
+  Assessments Assessments[] @relation("AssessmentsToUsers")
+  modules     Modules[]     @relation("ModulesToUsers")
+  role        Roles[]       @relation("RolesToUsers")
 }
 
 model Modules {
   id            Int           @id @default(autoincrement())
-  moduleName    String        @unique
-  moduleLeaders Users[]
+  moduleName    String        
+  moduleCode    String        @unique
   assessments   Assessments[]
+  moduleLeaders Users[]       @relation("ModulesToUsers")
 }
 
 model Roles {
   id       Int     @id @default(autoincrement())
   roleName String  @unique
-  users    Users[]
+  users    Users[] @relation("RolesToUsers")
 }
 
 model Assessments {
-  id                             Int                              @id @default(autoincrement())
-  moduleId                       Int
-  module                         Modules                          @relation(fields: [moduleId], references: [id])
-  assessmentName                 String?                          @unique
-  assessmentType                 String?
-  handOutWeek                    DateTime
-  handInWeek                     DateTime
-  assessment_availability        Assessment_Availability[]
-  assignees                      Users[]
+  id                        Int                      @id @default(autoincrement())
+  moduleId                  Int
+  assessmentName            String?                  @unique
+  assessmentType            String?
+  handOutWeek               DateTime
+  handInWeek                DateTime
+  module                    Modules                  @relation(fields: [moduleId], references: [id])
+  assignees                 Users[]                  @relation("AssessmentsToUsers")
+  Assessment_Availability   Assessment_Availability? @relation(fields: [assessment_AvailabilityId], references: [id])
+  assessment_AvailabilityId Int? @unique
 }
 
 model Assessment_Availability {
-  id                          Int             @id @default(autoincrement())
+  id                          Int           @id @default(autoincrement())
   draftAssessmentDate         DateTime
   lastYearAssessmentAvailable Boolean
   lastYearAssessmentDate      DateTime?
+  lastModifiedDate            DateTime?
   markingPlanSummary          String
   changesSummary              String
-  Assessments                 Assessments?    @relation(fields: [assessmentsId], references: [id])
   assessmentsId               Int?
+  Assessments                 Assessments?
 }

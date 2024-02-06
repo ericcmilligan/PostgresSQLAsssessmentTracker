@@ -10,8 +10,10 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@mermaid-js/mermaid-cli": "^10.7.0",
     "@types/node": "^20.11.16",
     "prisma": "^5.9.1",
+    "prisma-erd-generator": "^1.11.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   },
